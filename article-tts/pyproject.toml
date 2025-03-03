@@ -1,0 +1,12 @@
+[project]
+name = "webwhisper"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "elevenlabs==1.52.0",
+    "hyperbrowser==0.30.0",
+    "python-dotenv==1.0.1",
+    "streamlit==1.42.2",
+]

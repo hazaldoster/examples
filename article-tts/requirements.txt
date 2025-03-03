@@ -1,0 +1,4 @@
+streamlit==1.42.2
+hyperbrowser==0.30.0
+elevenlabs==1.52.0
+python-dotenv==1.0.1
