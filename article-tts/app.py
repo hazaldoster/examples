@@ -18,11 +18,11 @@ st.set_page_config(
 )
 
 
-HB_API_KEY = str(os.getenv("HB_API_KEY", ""))
-if HB_API_KEY is None:
-    raise ValueError("HB_API_KEY is not set")
+HYPERBROWSER_API_KEY = str(os.getenv("HYPERBROWSER_API_KEY", ""))
+if HYPERBROWSER_API_KEY is None:
+    raise ValueError("HYPERBROWSER_API_KEY is not set")
 else:
-    HB_API_KEY = str(os.getenv("HB_API_KEY", ""))
+    HYPERBROWSER_API_KEY = str(os.getenv("HYPERBROWSER_API_KEY", ""))
 
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -57,7 +57,7 @@ def extract_content(
     url: str,
 ) -> Optional[ArticleContent]:
     try:
-        client = Hyperbrowser(api_key=HB_API_KEY)
+        client = Hyperbrowser(api_key=HYPERBROWSER_API_KEY)
 
         extraction_config = StartExtractJobParams(
             urls=[url],
@@ -129,7 +129,7 @@ def main():
         # Hyperbrowser API Key
         hb_key = st.text_input(
             "Hyperbrowser API Key",
-            value=HB_API_KEY,
+            value=HYPERBROWSER_API_KEY,
             type="password",
             help="Enter your Hyperbrowser API key",
         )
