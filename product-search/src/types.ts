@@ -9,7 +9,7 @@ export const zodProductSchema = z.object({
 });
 
 export const zodSimilarProductsSchema = zodProductSchema.extend({
-  link: z.string(),
+  linkToProduct: z.string(),
   onSale: z.boolean(),
   salePrice: z.number().optional()
 });

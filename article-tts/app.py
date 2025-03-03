@@ -19,10 +19,7 @@ st.set_page_config(
 
 
 HYPERBROWSER_API_KEY = str(os.getenv("HYPERBROWSER_API_KEY", ""))
-if HYPERBROWSER_API_KEY is None:
-    raise ValueError("HYPERBROWSER_API_KEY is not set")
-else:
-    HYPERBROWSER_API_KEY = str(os.getenv("HYPERBROWSER_API_KEY", ""))
+ELEVENLABS_API_KEY = str(os.getenv("ELEVENLABS_API_KEY", ""))
 
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -55,9 +52,10 @@ class ArticleContent:
 
 def extract_content(
     url: str,
+    hb_key: str,
 ) -> Optional[ArticleContent]:
     try:
-        client = Hyperbrowser(api_key=HYPERBROWSER_API_KEY)
+        client = Hyperbrowser(api_key=hb_key)
 
         extraction_config = StartExtractJobParams(
             urls=[url],
@@ -105,7 +103,7 @@ def main():
         elevenlabs_key = st.text_input(
             "ElevenLabs API Key",
             placeholder="sk_...",
-            value="sk_2730c47f5e9433bc9240d8afbb8240da8bcfef13d0ae2689",
+            value=ELEVENLABS_API_KEY,
             type="password",
             help="Get your API key from https://elevenlabs.io",
         )
@@ -130,6 +128,7 @@ def main():
         hb_key = st.text_input(
             "Hyperbrowser API Key",
             value=HYPERBROWSER_API_KEY,
+            placeholder="hb_...",
             type="password",
             help="Enter your Hyperbrowser API key",
         )
@@ -175,7 +174,7 @@ def main():
         if url:
             st.write(f"Extracting content from {url}...")
             with st.spinner("Extracting content..."):
-                content = extract_content(url)
+                content = extract_content(url, hb_key)
                 # Store content in session state
                 st.session_state.article_content = content
         else:

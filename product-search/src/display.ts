@@ -36,11 +36,8 @@ export function displaySimilarProducts(products: SimilarProductsResponseSchema['
     
     // Show link shortened if needed
     const maxLinkLength = 70;
-    const link = product.link.length > maxLinkLength
-      ? `${product.link.substring(0, maxLinkLength)}...`
-      : product.link;
     
-    console.log(`🔗 Link: ${link}`);
+    console.log(`🔗 Link: ${product.linkToProduct}`);
   });
   
   console.log('='.repeat(50));

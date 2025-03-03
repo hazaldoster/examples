@@ -2,8 +2,8 @@ import fs from 'fs';
 import ora from 'ora';
 import HyperbrowserClient, { Hyperbrowser } from '@hyperbrowser/sdk';
 
-import { 
-  ProductResponseSchema, 
+import {
+  ProductResponseSchema,
   SimilarProductsResponseSchema,
   FileDataSchema,
   zodProductSchema,
@@ -31,7 +31,7 @@ export async function searchForProduct(productUrl: string, outputFile: string, a
       return;
     }
     spinner.succeed(`Product found: ${productData.name}`);
-    
+
     // Display detailed product information
     displayProductDetails(productData);
 
@@ -39,7 +39,7 @@ export async function searchForProduct(productUrl: string, outputFile: string, a
     spinner.start(`Finding similar products for ${productData.name}`);
     const similarProducts = await findSimilarProducts(client, productData);
     spinner.succeed(`Found ${similarProducts.length} similar products`);
-    
+
     // Display similar products information
     displaySimilarProducts(similarProducts);
 
@@ -117,7 +117,7 @@ export async function refreshProductInfo(filePath: string, apiKey: string) {
 
     for (const [productUrl, productInfo] of Object.entries(existingData)) {
       spinner.start(`Refreshing product information for: ${productUrl}`);
-      
+
       // Display original product information
       console.log('\n📦 Refreshing product:');
       displayProductDetails(productInfo.originalProduct);
@@ -134,10 +134,10 @@ export async function refreshProductInfo(filePath: string, apiKey: string) {
         };
 
         spinner.succeed(`Successfully refreshed data for ${productUrl}`);
-        
+
         // Display updated similar products
         displaySimilarProducts(updatedSimilarProducts);
-        
+
         successCount++;
       } catch (error) {
         spinner.fail(`Error refreshing data for ${productUrl}`);
@@ -187,11 +187,12 @@ async function findSimilarProducts(hyperbrowserClient: HyperbrowserClient, produ
     // No spinner here because we're using one in the calling function
     const searchQuery = `${productData.name} similar products`;
     const encodedQuery = encodeURIComponent(searchQuery);
-    const googleUrl = `https://www.google.com/search?q=${encodedQuery}&tbm=shop`;
+    const googleUrl = `https://www.bing.com/shop?q=${encodedQuery}`;
 
     const similarProducts = await hyperbrowserClient.extract.startAndWait({
       urls: [googleUrl],
       schema: zodSimilarProductsArraySchema,
+      prompt: "Extract the details on the products listed on the page. Get the name, description, brand, price, product link, sales price, and if the product is on sale for each of the products.",
       sessionOptions: {
         useProxy: true,
         solveCaptchas: true,
