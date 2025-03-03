@@ -1,0 +1,47 @@
+{
+  "name": "camelcamelgeneric",
+  "version": "1.0.0",
+  "description": "Tool to search for products and find similar items",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@hyperbrowser/sdk": "^0.31.0",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "ora": "^8.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "search": "node dist/index.js search",
+    "refresh": "node dist/index.js refresh",
+    "schedule": "node dist/index.js schedule",
+    "unschedule": "node dist/index.js unschedule",
+    "unschedule:clean": "node dist/index.js unschedule --delete-script",
+    "lint": "tsc --noEmit",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm run build"
+  },
+  "bin": {
+    "product-finder": "./dist/index.js"
+  },
+  "keywords": [
+    "product",
+    "search",
+    "compare",
+    "price",
+    "tracker"
+  ]
+}

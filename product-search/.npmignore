@@ -1,0 +1,25 @@
+# Source files and directories
+src/
+tests/
+
+# Config files
+.github/
+.gitignore
+.eslintrc
+.prettierrc
+tsconfig.json
+
+# Build artifacts
+*.tsbuildinfo
+
+# Environment and local files
+.env
+.env.*
+*.log
+run-scheduled-task.sh
+scheduled-run.log
+saved_products.json
+
+# OS files
+.DS_Store
+Thumbs.db 
