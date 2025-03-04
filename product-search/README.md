@@ -41,13 +41,7 @@ A command-line tool built with TypeScript and Hyperbrowser to search for product
 Extract information about a product and find similar items:
 
 ```bash
-npm run search -- --url "https://example.com/product/123" --output "./my-products.json"
-```
-
-Or use the shorthand example command:
-
-```bash
-npm run search:example
+npm run search -- --url "https://example.com/product/123"
 ```
 
 Options:
@@ -69,6 +63,8 @@ npm run refresh:default
 
 Options:
 - `--file, -f`: Path to the saved product data file (optional, defaults to `saved_products.json`)
+
+## Advanced Usage
 
 ### Schedule Automatic Updates
 
@@ -105,30 +101,6 @@ npm run unschedule:clean
 Options:
 - `--delete-script, -d`: Also delete the script file (optional, defaults to `false`)
 
-## Advanced Usage
-
-### Global Installation
-
-You can install the tool globally to run it from anywhere:
-
-```bash
-npm install -g .
-```
-
-Then use the `product-finder` command:
-```bash
-product-finder search --url "https://example.com/product/123"
-```
-
-### Development Mode
-
-For development, you can use the watch mode:
-
-```bash
-npm run dev
-```
-
-This will recompile the TypeScript code whenever you make changes.
 
 ## Data Structure
 
@@ -160,26 +132,3 @@ The tool stores data in JSON format with the following structure:
   // More products...
 }
 ```
-
-## Troubleshooting
-
-### API Key Issues
-If you encounter `HYPERBROWSER_API_KEY is not set` error, make sure you:
-1. Have created a `.env` file with your API key
-2. Have correctly formatted the key as `HYPERBROWSER_API_KEY=your_key_here`
-
-### Scheduling Issues
-If scheduling doesn't work:
-1. Ensure you're on Linux/macOS (crontab is required)
-2. Check if the script has executable permissions (`chmod +x run-scheduled-task.sh`)
-3. Verify your crontab entry with `crontab -l`
-
-### Data Extraction Issues
-If product information is not being extracted correctly:
-1. Check if the URL is accessible
-2. Verify that the product page structure matches what the extractor expects
-3. Try using a proxy by setting `HYPERBROWSER_USE_PROXY=true` in your `.env` file
-
-## License
-
-MIT
