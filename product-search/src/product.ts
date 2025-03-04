@@ -1,17 +1,21 @@
 import fs from 'fs';
 import ora from 'ora';
 import HyperbrowserClient, { Hyperbrowser } from '@hyperbrowser/sdk';
+import { zodResponseFormat } from "openai/helpers/zod";
+import OpenAI from 'openai';
 
 import {
   ProductResponseSchema,
   SimilarProductsResponseSchema,
   FileDataSchema,
   zodProductSchema,
-  zodSimilarProductsArraySchema
+  zodSimilarProductsArraySchema,
+  zodSimilarProductsSchema
 } from './types';
 import { displayProductDetails, displaySimilarProducts } from './display';
+import { z } from 'zod';
 
-export async function searchForProduct(productUrl: string, outputFile: string, apiKey: string) {
+export async function searchForProduct(productUrl: string, outputFile: string, apiKey: string, openAiKey?: string) {
   // Create a single spinner instance to reuse
   const spinner = ora('Initializing Hyperbrowser...').start();
 
@@ -37,8 +41,8 @@ export async function searchForProduct(productUrl: string, outputFile: string, a
 
     // Find similar products
     spinner.start(`Finding similar products for ${productData.name}`);
-    const similarProducts = await findSimilarProducts(client, productData);
-    spinner.succeed(`Found ${similarProducts.length} similar products`);
+    const similarProducts = await findSimilarProducts(client, productData, openAiKey);
+    spinner.succeed(`Found ${similarProducts.length} similar products${openAiKey ? ' (sorted by similarity)' : ''}`);
 
     // Display similar products information
     displaySimilarProducts(similarProducts);
@@ -73,7 +77,7 @@ export async function searchForProduct(productUrl: string, outputFile: string, a
   }
 }
 
-export async function refreshProductInfo(filePath: string, apiKey: string) {
+export async function refreshProductInfo(filePath: string, apiKey: string, openAiKey?: string) {
   // Create a single spinner instance to reuse
   const spinner = ora(`Reading product information from ${filePath}`).start();
 
@@ -124,7 +128,7 @@ export async function refreshProductInfo(filePath: string, apiKey: string) {
 
       try {
         // Find updated similar products
-        const updatedSimilarProducts = await findSimilarProducts(client, productInfo.originalProduct);
+        const updatedSimilarProducts = await findSimilarProducts(client, productInfo.originalProduct, openAiKey);
 
         // Update the entry
         updatedData[productUrl] = {
@@ -182,7 +186,11 @@ async function extractProductData(hyperbrowserClient: HyperbrowserClient, produc
   }
 }
 
-async function findSimilarProducts(hyperbrowserClient: HyperbrowserClient, productData: ProductResponseSchema) {
+async function findSimilarProducts(
+  hyperbrowserClient: HyperbrowserClient,
+  productData: ProductResponseSchema,
+  openAiKey?: string
+) {
   try {
     // No spinner here because we're using one in the calling function
     const searchQuery = `${productData.name} similar products`;
@@ -204,8 +212,102 @@ async function findSimilarProducts(hyperbrowserClient: HyperbrowserClient, produ
     }
 
     const similarProductsData = similarProducts.data as SimilarProductsResponseSchema;
-    return similarProductsData.products;
+    let products = similarProductsData.products;
+
+    // Sort the products using OpenAI if API key is available
+    if (openAiKey && openAiKey.trim() !== '') {
+      console.log('Sorting products by similarity using OpenAI');
+      products = await sortProductsBySimilarity(products, productData, openAiKey);
+    } else {
+      console.log('No OpenAI API key provided, skipping similarity sorting');
+    }
+
+    return products;
   } catch (error) {
     throw error; // Let the calling function handle the spinner
+  }
+}
+
+async function sortProductsBySimilarity(
+  products: SimilarProductsResponseSchema['products'],
+  originalProduct: ProductResponseSchema,
+  openAiApiKey: string
+): Promise<SimilarProductsResponseSchema['products']> {
+  try {
+    const openai = new OpenAI({
+      apiKey: openAiApiKey
+    });
+
+    // Create a prompt for OpenAI
+    const prompt = `
+      I have an original product and a list of similar products. Please rank the similar products by how closely they match the original product. Consider factors like features, specifications, price range, brand, and overall product purpose.
+      
+      Original Product:
+      Name: ${originalProduct.name}
+      Brand: ${originalProduct.brand}
+      Description: ${originalProduct.description}
+      Price: $${originalProduct.price}
+      
+      Similar Products:
+      ${products.map((product, index) => `
+      Product ${index + 1}:
+      Name: ${product.name}
+      Brand: ${product.brand}
+      Description: ${product.description}
+      Price: $${product.price}
+      Sale Price: ${product.salePrice ? '$' + product.salePrice : 'N/A'}
+      On Sale: ${product.onSale ? 'Yes' : 'No'}
+      Link: ${product.linkToProduct}
+      `).join('\n')}
+      
+      Return a JSON array of indices representing the ranked order of products from most similar to least similar to the original product. For example [2, 5, 1, 3, 4] would mean Product 2 is most similar, followed by Product 5, etc.
+    `;
+
+    // Call OpenAI API
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that ranks products by similarity." },
+        { role: "user", content: prompt }
+      ],
+      response_format: zodResponseFormat(z.object({ rankedProducts: z.array(z.number()) }), "rankedProducts"),
+      temperature: 0.3,
+    });
+
+
+    const productOrder = JSON.parse(response.choices[0]?.message?.content || '{}').rankedProducts as number[];
+
+    // Sort the products based on the ranking order
+    // Adjust indices to be 0-based (OpenAI returns 1-based indices)
+    const sortedProducts = [...products];
+
+    // Create a new array to hold the sorted products
+    const reorderedProducts: typeof products = [];
+
+    // Map each index in productOrder to the corresponding product
+    // Subtract 1 from each index since productOrder uses 1-based indexing
+    for (const index of productOrder) {
+      // Ensure the index is valid
+      if (index >= 1 && index <= products.length) {
+        reorderedProducts.push(products[index - 1]);
+      }
+    }
+
+    // If any products were missed in the ordering, add them at the end
+    if (reorderedProducts.length < products.length) {
+      const includedIndices = new Set(productOrder.map(i => i - 1));
+      for (let i = 0; i < products.length; i++) {
+        if (!includedIndices.has(i)) {
+          reorderedProducts.push(products[i]);
+        }
+      }
+    }
+
+    // Replace the original products array with the sorted one
+    return reorderedProducts;
+  } catch (error) {
+    console.error("Error sorting products with OpenAI:", error);
+    // Return unsorted products if there's an error
+    return products;
   }
 } 

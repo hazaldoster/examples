@@ -9,6 +9,7 @@ import { setupCronJob, removeCronJob } from './scheduler';
 // Configuration
 const OUTPUT_FILE = path.join(__dirname, '../saved_products.json');
 const API_KEY = process.env.HYPERBROWSER_API_KEY as string;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY as string;
 
 async function main() {
   const program = new Command();
@@ -27,7 +28,7 @@ async function main() {
       if (!API_KEY) {
         throw new Error('HYPERBROWSER_API_KEY is not set');
       }
-      await searchForProduct(options.url, options.output, API_KEY);
+      await searchForProduct(options.url, options.output, API_KEY, OPENAI_API_KEY);
     });
 
   program
@@ -38,7 +39,7 @@ async function main() {
       if (!API_KEY) {
         throw new Error('HYPERBROWSER_API_KEY is not set');
       }
-      await refreshProductInfo(options.file, API_KEY);
+      await refreshProductInfo(options.file, API_KEY, OPENAI_API_KEY);
     });
 
   program
