@@ -9,6 +9,7 @@ A command-line tool built with TypeScript and Hyperbrowser to search for product
 - **Data Tracking**: Save product details to easily track price changes
 - **Automatic Refresh**: Schedule updates to keep your product data current
 - **User-Friendly Interface**: Progress indicators and clear formatted output
+- **OpenAI Integration**: Use OpenAI to sort products by similarity
 
 ## Requirements
 
@@ -26,6 +27,7 @@ A command-line tool built with TypeScript and Hyperbrowser to search for product
 3. Create a `.env` file in the project root with your API key:
    ```
    HYPERBROWSER_API_KEY=your_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here # Optional, only needed for similarity sorting
    ```
 4. Build the project:
    ```bash
