@@ -173,7 +173,7 @@ def main():
 
     # Add logo in the left column - using local file
     with col1:
-        st.image("static/wordmark-dark.png", width=200)
+        st.image("https://hyperbrowser-assets-bucket.s3.us-east-1.amazonaws.com/wordmark-dark.png", width=200)
 
     # Add hyperbrowser link in the right column, aligned to the right
     with col2:
