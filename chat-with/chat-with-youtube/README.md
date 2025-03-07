@@ -2,7 +2,7 @@
 
 A Streamlit application that enables users to chat with the content of YouTube videos using AI. This tool automatically extracts video transcripts and uses OpenAI to answer questions about the video content.
 
-![YouTube Video Chat App](https://placeholder-for-screenshot.png)
+![YouTube Video Chat App](./assets/chat-with-youtube.gif)
 
 ## Features
 
