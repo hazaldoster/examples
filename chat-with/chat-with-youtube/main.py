@@ -168,6 +168,25 @@ def chat_with_transcript(transcript_segments, prompt, chat_history=None):
 
 
 def main():
+    # Create two columns for the header
+    col1, col2 = st.columns([3, 2])
+
+    # Add logo in the left column
+    with col1:
+        st.image("./assets/wordmark-dark.png", width=200)
+
+    # Add hyperbrowser link in the right column, aligned to the right
+    with col2:
+        st.html(
+            """
+        <div style="text-align: right; display: flex; justify-content: flex-end;">
+            <p style="margin: 0px;">
+                Powered by <a href="https://hyperbrowser.ai" target="_blank">hyperbrowser.ai</a>
+            </p>
+        </div>
+        """,
+        )
+
     st.title("YouTube Video Chat")
     st.write("Chat with the content of any YouTube video using AI")
 
@@ -232,7 +251,7 @@ def main():
 
                 # Input for user question - moved up to capture it before displaying history
                 user_question = st.chat_input("Ask a question about the video:")
-                
+
                 # Display chat history
                 if len(st.session_state.chat_history) > 0:
                     for i, (question, answer) in enumerate(
@@ -280,7 +299,7 @@ def main():
 
                     # Add to chat history
                     st.session_state.chat_history.append((user_question, ai_response))
-                    
+
                     # Rerun the app to update the UI
                     st.rerun()
 
