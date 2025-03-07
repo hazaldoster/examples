@@ -171,15 +171,15 @@ def main():
     # Create two columns for the header
     col1, col2 = st.columns([3, 2])
 
-    # Add logo in the left column
+    # Add logo in the left column - using local file
     with col1:
-        st.image("./assets/wordmark-dark.png", width=200)
+        st.image("static/wordmark-dark.png", width=200)
 
     # Add hyperbrowser link in the right column, aligned to the right
     with col2:
         st.html(
             """
-        <div style="text-align: right; display: flex; justify-content: flex-end;">
+        <div style="text-align: right; display: flex; justify-content: flex-end; height: 100%; align-items: center;">
             <p style="margin: 0px;">
                 Powered by <a href="https://hyperbrowser.ai" target="_blank">hyperbrowser.ai</a>
             </p>
@@ -191,7 +191,9 @@ def main():
     st.write("Chat with the content of any YouTube video using AI")
 
     # Input for YouTube URL
-    youtube_url = st.text_input("Enter YouTube video URL:")
+    youtube_url = st.text_input(
+        "Enter Youtube URL:", label_visibility="collapsed", placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    )
 
     if youtube_url:
         video_id = extract_video_id(youtube_url)
