@@ -181,7 +181,7 @@ def chat_with_transcript(transcript_segments, prompt, chat_history=None):
 
         # Call OpenAI API
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo", messages=messages, temperature=0.7, max_tokens=500
+            model="gpt-4o-mini", messages=messages, temperature=0.7, max_tokens=500
         )
 
         # Store the full response as a dictionary
