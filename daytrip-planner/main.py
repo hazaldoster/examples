@@ -133,8 +133,8 @@ def adjust_viewport(page, locations_element):
 
 def capture_explore_page(browser_ws_url, from_location):
     """Use Playwright to navigate to Google Travel Explore and capture results."""
-    with sync_playwright() as p:
-        browser = p.chromium.connect_over_cdp(browser_ws_url)
+    try:
+        browser = sync_playwright.chromium.connect_over_cdp(browser_ws_url)
         all_contexts = browser.contexts
         if len(all_contexts) == 0:
             context = browser.new_context()
@@ -179,7 +179,7 @@ def capture_explore_page(browser_ws_url, from_location):
         # Create a temporary file for the screenshot
         screenshot_path = create_screenshot(locations_element)
         if not screenshot_path:
-            return
+            return None
 
         # Reset viewport size to original
         page.set_viewport_size(original_viewport_size)
@@ -188,7 +188,12 @@ def capture_explore_page(browser_ws_url, from_location):
         # Process the image if needed
         final_screenshot_path = process_screenshot(screenshot_path)
 
+        browser.disconnect()
+
         return final_screenshot_path
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        return None
 
 
 def get_place_details(page: Page, link: str, find_nearby_places: bool = False):
