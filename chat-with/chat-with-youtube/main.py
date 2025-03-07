@@ -66,7 +66,7 @@ def get_youtube_transcript(page: Page, url: str):
         if transcript_display_selector is None:
             return None
 
-        transcript_segments = transcript_display_selector.evaluate(
+        transcript_segments: list[dict] = transcript_display_selector.evaluate(
             """()=>(
                     [...document
                         .querySelector("ytd-transcript-segment-list-renderer")
@@ -107,13 +107,13 @@ def format_transcript(transcript_segments, include_timestamps=True):
     return formatted_text.strip()
 
 
-def get_video_info(page: Page, url: str):
+def get_video_title(page: Page, url: str):
     """Use Playwright to get the video title and other metadata."""
     try:
         page.goto(url, wait_until="domcontentloaded")
 
         # Get video title
-        title = page.evaluate("document.title")
+        title: str = page.evaluate("document.title")
 
         # Remove the " - YouTube" suffix if present
         if " - YouTube" in title:
@@ -123,6 +123,35 @@ def get_video_info(page: Page, url: str):
     except Exception as e:
         st.error(f"Error getting video info: {str(e)}")
         return "Unknown Video"
+
+
+@st.cache_data(show_spinner=False)
+def get_all_video_info(url: str):
+    with sync_playwright() as playwright:
+        session = get_session()
+        browser_url = session.ws_endpoint
+        if browser_url is None:
+            raise Exception("Browser URL not found")
+
+        browser = playwright.chromium.connect_over_cdp(browser_url)
+        context = browser.new_context()
+        page = context.new_page()
+
+        # Get video title
+        video_title = get_video_title(page, url)
+
+        page.keyboard.press("k")
+        # Brief delay to ensure the pause takes effect
+        time.sleep(0.5)
+
+        # Get video transcript directly from YouTube page
+        transcript_segments = get_youtube_transcript(page, url)
+        if transcript_segments:
+            st.success(f"Successfully fetched transcript for: {video_title}")
+            return transcript_segments, video_title
+        else:
+            st.error("Failed to retrieve transcript for this video.")
+            return None, None
 
 
 def chat_with_transcript(transcript_segments, prompt, chat_history=None):
@@ -173,7 +202,10 @@ def main():
 
     # Add logo in the left column - using local file
     with col1:
-        st.image("https://hyperbrowser-assets-bucket.s3.us-east-1.amazonaws.com/wordmark-dark.png", width=200)
+        st.image(
+            "https://hyperbrowser-assets-bucket.s3.us-east-1.amazonaws.com/wordmark-dark.png",
+            width=200,
+        )
 
     # Add hyperbrowser link in the right column, aligned to the right
     with col2:
@@ -192,7 +224,9 @@ def main():
 
     # Input for YouTube URL
     youtube_url = st.text_input(
-        "Enter Youtube URL:", label_visibility="collapsed", placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        "Enter Youtube URL:",
+        label_visibility="collapsed",
+        placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     )
 
     if youtube_url:
@@ -205,43 +239,15 @@ def main():
             if "transcript" not in st.session_state:
                 st.session_state.transcript = None
                 st.session_state.video_title = None
-                st.session_state.video_id = None
 
             # Initialize OpenAI API call history
             if "api_history" not in st.session_state:
                 st.session_state.api_history = []
 
-            # Only fetch transcript if it's a new video
-            if st.session_state.video_id != video_id:
-                with st.spinner("Fetching video information..."):
-                    with sync_playwright() as playwright:
-                        session = get_session()
-                        browser_url = session.ws_endpoint
-                        if browser_url is None:
-                            raise Exception("Browser URL not found")
-
-                        browser = playwright.chromium.connect_over_cdp(browser_url)
-                        context = browser.new_context()
-                        page = context.new_page()
-
-                        # Get video title
-                        video_title = get_video_info(page, youtube_url)
-                        st.session_state.video_title = video_title
-
-                        page.keyboard.press("k")
-                        # Brief delay to ensure the pause takes effect
-                        time.sleep(0.5)
-
-                        # Get video transcript directly from YouTube page
-                        transcript_segments = get_youtube_transcript(page, youtube_url)
-                        if transcript_segments:
-                            st.session_state.transcript = transcript_segments
-                            st.session_state.video_id = video_id
-                            st.success(
-                                f"Successfully fetched transcript for: {video_title}"
-                            )
-                        else:
-                            st.error("Failed to retrieve transcript for this video.")
+            with st.spinner("Fetching video information..."):
+                transcript_segments, video_title = get_all_video_info(youtube_url)
+                st.session_state.transcript = transcript_segments
+                st.session_state.video_title = video_title
 
             # Display video information
             if st.session_state.transcript:
@@ -329,6 +335,8 @@ def main():
                     st.session_state.chat_history = []
                     st.session_state.api_history = []
                     st.rerun()  # Using st.rerun() instead of st.experimental_rerun()
+            else:
+                st.error("Failed to retrieve transcript for this video.")
 
 
 if __name__ == "__main__":
