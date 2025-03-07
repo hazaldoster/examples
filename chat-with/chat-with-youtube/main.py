@@ -222,10 +222,18 @@ def main():
     st.title("YouTube Video Chat")
     st.write("Chat with the content of any YouTube video using AI")
 
+    if "url" in st.query_params:
+        default_url = st.query_params["url"]
+        if default_url == "":
+            default_url = None
+    else:
+        default_url = None
+
     # Input for YouTube URL
     youtube_url = st.text_input(
         "Enter Youtube URL:",
         label_visibility="collapsed",
+        value=default_url,
         placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     )
 
