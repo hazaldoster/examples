@@ -196,6 +196,14 @@ def chat_with_transcript(transcript_segments, prompt, chat_history=None):
         return f"Error: {str(e)}", None
 
 
+st.set_page_config(
+    layout="centered",  # Can be "centered" or "wide". In the future also "dashboard", etc.
+    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
+    page_title="Chat with YouTube Video - Hyperbrowser",  # String or None. Strings get appended with "• Streamlit".
+    page_icon="https://hyperbrowser-assets-bucket.s3.us-east-1.amazonaws.com/favicon.ico",  # String, anything supported by st.image, or None.
+)
+
+
 def main():
     # Create two columns for the header
     col1, col2 = st.columns([3, 2])
