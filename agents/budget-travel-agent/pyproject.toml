@@ -1,0 +1,12 @@
+[project]
+name = "budget-travel-agent"
+version = "0.1.0"
+description = "A Streamlit app to automate travel searches on Google and analyze results with OpenAI"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "streamlit>=1.24.0",
+    "playwright>=1.38.0",
+    "openai>=1.3.0",
+    "python-dotenv>=1.0.0"
+]
