@@ -1,5 +1,4 @@
 from datetime import datetime
-import io
 import tempfile
 from typing import Optional
 import streamlit as st
@@ -15,12 +14,14 @@ import time
 from dotenv import load_dotenv
 from PIL import Image
 
-from location_validator import validate_city
 
 # Load environment variables from .env file
 load_dotenv()
 
-from chatgpt_parser import TravelDestination, extract_travel_data_from_image
+from hyperbrowser.client.sync import Hyperbrowser
+from hyperbrowser.models.session import CreateSessionParams, ScreenConfig
+from src.location_validator import validate_city
+from src.chatgpt_parser import TravelDestination, extract_travel_data_from_image
 
 # Get OpenAI API key from environment variables
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -68,7 +69,7 @@ def set_weekend_filter(page: Page, trip_duration):
     duration_filter.click()
 
     # Find and click on the "Weekend" option
-    duration_options = page.wait_for_selector('div[aria-label="Trip duration"]')
+    duration_options = page.wait_for_selector('div[aria-label*="Trip duration"]')
     if not duration_options:
         st.warning("Could not find Weekend filter option")
         return False
@@ -164,10 +165,22 @@ def take_screenshot(
     """
     Use Playwright to navigate to Google Travel, set parameters, and take a screenshot
     """
-    with sync_playwright() as p:
-        browser = p.chromium.connect_over_cdp(
-            "ws://127.0.0.1:9802/devtools/browser/ec1c5dfa-5b09-4291-9ba3-11b60282d384"
+    client = Hyperbrowser(api_key=os.getenv("HYPERBROWSER_API_KEY"))
+    session = client.sessions.create(
+        CreateSessionParams(
+            screen=ScreenConfig(
+                width=1920,
+                height=1080,
+            )
         )
+    )
+    print(session.live_url)
+    if not session.ws_endpoint:
+        st.error("Could not create a session")
+        return
+
+    with sync_playwright() as p:
+        browser = p.chromium.connect_over_cdp(session.ws_endpoint)
         context = browser.new_context()
         page = context.new_page()
 
@@ -182,7 +195,9 @@ def take_screenshot(
                 return
 
             # Wait for the page to load
-            fromInputElement = page.wait_for_selector('input[aria-label="Where from?"]')
+            fromInputElement = page.wait_for_selector(
+                'input[aria-label*="Where from?"]'
+            )
             if not fromInputElement:
                 st.error("Travel Explore page did not load properly")
                 return
@@ -192,7 +207,7 @@ def take_screenshot(
             time.sleep(2)  # Wait for autocomplete suggestions
             page.keyboard.press("Enter")
 
-            toInputElement = page.wait_for_selector('input[aria-label="Where to?"]')
+            toInputElement = page.wait_for_selector('input[aria-label*="Where to?"]')
             if not toInputElement:
                 st.error("Travel Explore page did not load properly")
                 return
@@ -245,11 +260,12 @@ def take_screenshot(
             final_screenshot_bytes = process_screenshot(screenshot_path)
 
             return final_screenshot_bytes
-
         except Exception as e:
             st.error(f"Error during browser automation: {str(e)}")
             # Return screenshot of current state for debugging
             return None
+        finally:
+            client.sessions.stop(session.id)
 
 
 @st.cache_data(show_spinner=False)
