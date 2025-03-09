@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "hyperbrowser",
+    "hyperbrowser>=0.33.0",
     "jsonref>=1.1.0",
     "openai>=1.65.4",
     "playwright>=1.50.0",
@@ -15,6 +15,3 @@ dependencies = [
     "tenacity>=9.0.0",
     "typing-extensions>=4.12.2",
 ]
-
-[tool.uv.sources]
-hyperbrowser = { path = "../../code/sdks/python-sdk/dist/hyperbrowser-0.35.0-py3-none-any.whl" }

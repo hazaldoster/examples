@@ -1,13 +1,13 @@
 import io
 import re
 import os
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-
+import jsonref
 import streamlit as st
 from hyperbrowser import Hyperbrowser
 from hyperbrowser.models.extract import StartExtractJobParams
@@ -40,15 +40,17 @@ def extract_git_comparison(comparison_url: str) -> Optional[Dict[str, Any]]:
             )
             return None
 
-        client = Hyperbrowser(api_key=api_key, base_url="http://localhost:8080")
-        print(
-            comparison_url,
-        )
+        client = Hyperbrowser(api_key=api_key)
+
         # Create extract job
         result = client.extract.start_and_wait(
             params=StartExtractJobParams(
                 urls=[comparison_url],
-                schema=GitComparisonSchema,
+                schema=jsonref.replace_refs(
+                    GitComparisonSchema.model_json_schema(),
+                    proxies=False,
+                    lazy_load=False,
+                ),
                 prompt="""
                 Extract the following information from this GitHub comparison page:
                 1. The total number of commits in this comparison
@@ -68,8 +70,6 @@ def extract_git_comparison(comparison_url: str) -> Optional[Dict[str, Any]]:
                 wait_for=None,
             )
         )
-        print(result.job_id)
-        print(result.data)
         return result.data
 
     except Exception as e:

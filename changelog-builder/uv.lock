@@ -94,7 +94,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "hyperbrowser", path = "../../code/sdks/python-sdk/dist/hyperbrowser-0.35.0-py3-none-any.whl" },
+    { name = "hyperbrowser", specifier = ">=0.33.0" },
     { name = "jsonref", specifier = ">=1.1.0" },
     { name = "openai", specifier = ">=1.65.4" },
     { name = "playwright", specifier = ">=1.50.0" },
@@ -244,22 +244,15 @@ wheels = [
 
 [[package]]
 name = "hyperbrowser"
-version = "0.35.0"
-source = { path = "../../code/sdks/python-sdk/dist/hyperbrowser-0.35.0-py3-none-any.whl" }
+version = "0.33.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
-    { name = "jsonref" },
     { name = "pydantic" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/ce/be/845a7663f394d84817ec6dac6b8982a7087af03bbd665d530e48c41b78a5/hyperbrowser-0.33.0.tar.gz", hash = "sha256:f1de485cc234482aec933c9314e6fb29bf0cf9469f2693cbd83b86ac38de50c3", size = 18316 }
 wheels = [
-    { filename = "hyperbrowser-0.35.0-py3-none-any.whl", hash = "sha256:33a2bb6bb5aa8ae71a41ee428e4328aae58d21947dbe19da53aa65d283776a22" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.23.0,<1" },
-    { name = "jsonref", specifier = ">=1.1.0" },
-    { name = "pydantic", specifier = ">=2.0,<3" },
+    { url = "https://files.pythonhosted.org/packages/ad/5b/47d1b7a6141273ab3b965f37b14ca84f5666dd3ba0dc248f722fa65b5c06/hyperbrowser-0.33.0-py3-none-any.whl", hash = "sha256:29fa1a879f14171c04282f31db9823b6f45598726fd6bd1d29f6205a5235decc", size = 37104 },
 ]
 
 [[package]]
