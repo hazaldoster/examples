@@ -9,7 +9,7 @@ The examples contains the following:
 
 ## Usage:
 
-All examples require a Hyperbrowser API key. You can get one by signing up at [Hyperbrowser](https://hyperbrowser.com).
+All examples require a Hyperbrowser API key. You can get one by signing up at [Hyperbrowser](https://app.hyperbrowser.ai).
 
 ## Support
 
