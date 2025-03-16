@@ -1,0 +1,7 @@
+openai>=1.0.0
+playwright>=1.38.0
+python-dotenv>=1.0.0
+jupyter>=1.0.0
+notebook>=7.0.0
+hyperbrowser>=0.1.0
+ipywidgets>=8.0.0 
