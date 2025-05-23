@@ -16,7 +16,7 @@ This tool automatically identifies the main CTA button in a website's hero secti
 ## Requirements
 
 - Node.js
-- Hyperbrowser API key
+- Hyperbrowser API key (get your API keys at hyperbrowser.ai)
 
 ## Installation
 
