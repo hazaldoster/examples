@@ -1,0 +1,23 @@
+{
+  "name": "company-researcher",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@hyperbrowser/sdk": "^0.48.1",
+    "dotenv": "^16.5.0",
+    "openai": "^4.103.0",
+    "zod": "^3.25.28"
+  }
+}
