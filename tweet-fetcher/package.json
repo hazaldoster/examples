@@ -1,0 +1,27 @@
+{
+  "name": "tweet-fetcher-js",
+  "version": "1.0.0",
+  "description": "Tweet fetcher using Hyperbrowser JavaScript SDK to scrape first 1000 tweets",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "demo": "node index-demo.js",
+    "view": "node view-tweets.js",
+    "collect100": "node collect-100-tweets.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@hyperbrowser/sdk": "^0.48.1",
+    "playwright-core": "^1.40.0",
+    "dotenv": "^16.0.0"
+  },
+  "keywords": [
+    "twitter",
+    "scraping",
+    "hyperbrowser",
+    "tweets"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
